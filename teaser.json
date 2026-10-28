@@ -1,0 +1,28 @@
+{
+  "brand": "YOUR BRAND",
+  "logo": null,
+  "tagline": "GRAND OPENING · 11.05.2026",
+  "size": "portrait",
+  "fps": 30,
+  "music": null,
+  "colors": {
+    "primary": "#4a0019",
+    "light": "#ffffff",
+    "accent": "#e8fff5",
+    "dark": "#000000"
+  },
+  "beats": [
+    { "type": "blank", "bg": "primary", "dur": 0.47 },
+    { "text": "ARE", "bg": "primary", "dur": 0.9 },
+    { "text": "YOU", "bg": "light", "dur": 0.9 },
+    { "text": "READY?", "bg": "primary", "dur": 0.8 },
+    { "type": "strobe", "text": "READY?", "dur": 0.8 },
+    { "text": "SOMETHING", "bg": "accent", "dur": 1.0 },
+    { "text": "NEW", "bg": "primary", "dur": 0.8 },
+    { "text": "IS", "bg": "accent", "dur": 0.9 },
+    { "type": "lockup", "lines": [{ "t": "OPENING", "w": "bold" }, { "t": "SOON", "w": "thin" }], "bg": "primary", "dur": 1.0, "fadeOut": 0.3 },
+    { "type": "reveal", "lines": [{ "t": "NOV 5", "w": "thin" }, { "t": "2026", "w": "bold" }], "bg": "primary", "dur": 3.6, "exit": "scatter" },
+    { "type": "glitch", "dur": 0.35 },
+    { "type": "end", "dur": 2.5 }
+  ]
+}

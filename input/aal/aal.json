@@ -1,0 +1,135 @@
+{
+  "brand": "All About Linen",
+  "size": "portrait",
+  "fps": 30,
+  "font": "wide",
+  "fontScale": 0.11,
+  "music": null,
+  "colors": {
+    "primary": "#1e2023",
+    "light": "#e4e6e9",
+    "accent": "#f3e4c6",
+    "dark": "#000000"
+  },
+  "beats": [
+    {
+      "type": "blank",
+      "bg": "primary",
+      "dur": 0.47
+    },
+    {
+      "text": "ARE",
+      "bg": "primary",
+      "dur": 0.8
+    },
+    {
+      "text": "YOU",
+      "bg": "light",
+      "dur": 0.8
+    },
+    {
+      "text": "READY?",
+      "bg": "primary",
+      "dur": 0.7
+    },
+    {
+      "type": "strobe",
+      "text": "READY?",
+      "dur": 0.8
+    },
+    {
+      "text": "SOMETHING",
+      "image": "door_clean.jpg",
+      "zoom": [
+        1.0,
+        1.08
+      ],
+      "origin": "45% 50%",
+      "ink": "primary",
+      "textTop": "17%",
+      "bg": "light",
+      "dur": 1.4
+    },
+    {
+      "text": "NEW",
+      "bg": "accent",
+      "dur": 0.8
+    },
+    {
+      "text": "IS",
+      "bg": "primary",
+      "dur": 0.8
+    },
+    {
+      "type": "lockup",
+      "lines": [
+        {
+          "t": "OPENING",
+          "w": "bold"
+        },
+        {
+          "t": "SOON",
+          "w": "thin"
+        }
+      ],
+      "image": "door_clean.jpg",
+      "zoom": [
+        1.1,
+        1.2
+      ],
+      "origin": "40% 50%",
+      "ink": "primary",
+      "textTop": "15%",
+      "bg": "light",
+      "dur": 1.5,
+      "fadeOut": 0.3
+    },
+    {
+      "type": "push",
+      "image": "door_clean.jpg",
+      "zoom": [
+        1.2,
+        9
+      ],
+      "origin": "30.5% 50%",
+      "ease": "power2.in",
+      "flash": "accent",
+      "bg": "light",
+      "dur": 0.9
+    },
+    {
+      "type": "reveal",
+      "lines": [
+        {
+          "t": "NOV 5",
+          "w": "thin"
+        },
+        {
+          "t": "2026",
+          "w": "bold"
+        }
+      ],
+      "bg": "accent",
+      "ink": "primary",
+      "dur": 3.2,
+      "exit": "scatter"
+    },
+    {
+      "type": "flash",
+      "flash": "accent",
+      "dur": 0.4,
+      "bg": "light"
+    },
+    {
+      "type": "poster",
+      "poster": "poster.jpg",
+      "above": "GRAND OPENING",
+      "aboveInk": "primary",
+      "below": "NOVEMBER 5, 2026",
+      "belowInk": "light",
+      "dur": 3.3,
+      "aboveTop": "9%",
+      "belowBottom": "9%"
+    }
+  ]
+}
