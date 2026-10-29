@@ -1,0 +1,26 @@
+{
+  "brand": "All About Linen",
+  "logo": "logo_white.png",
+  "tagline": "GRAND OPENING · 11.05.2026",
+  "size": "portrait",
+  "fps": 30,
+  "font": "wide",
+  "fontScale": 0.11,
+  "music": null,
+  "colors": {
+    "primary": "#1e2023",
+    "light": "#e4e6e9",
+    "accent": "#f3e4c6",
+    "gold": "#f2c84b",
+    "dark": "#000000"
+  },
+  "beats": [
+    { "type": "blank", "bg": "dark", "dur": 0.9 },
+    { "type": "mask", "lines": ["SOME", "THING", "SOFT"], "image": "photos/2.jpg", "zoom": [1.0, 1.1], "origin": "50% 40%", "dur": 2.9, "exit": "blur" },
+    { "type": "mask", "lines": ["IS", "COMING"], "image": "photos/3.jpg", "zoom": [1.05, 1.15], "origin": "50% 55%", "dur": 1.6, "exit": "zoom" },
+    { "type": "shot", "image": "photos/5.jpg", "zoom": [1.15, 1.0], "origin": "60% 50%", "cap1": "Getting Everything Ready", "cap2": "Just For You", "dur": 3.3, "exit": "flash" },
+    { "type": "shot", "image": "photos/4.jpg", "zoom": [1.0, 1.08], "origin": "40% 50%", "enterSlices": 6, "cap1": "Linens, Pillows & More", "cap2": "Under One Roof", "dur": 3.0 },
+    { "type": "shot", "image": "photos/1.jpg", "zoom": [1.0, 1.1], "origin": "50% 50%", "cap1": "All About Linen", "type1": "letters", "cap2": "November 5, 2026", "dur": 2.6, "exit": "liquid" },
+    { "type": "end", "dur": 3.0 }
+  ]
+}

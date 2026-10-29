@@ -29,6 +29,8 @@ copyFileSync(here("./node_modules/gsap/dist/gsap.min.js"), join(work, "assets", 
 copyFileSync(here("./node_modules/@fontsource/bebas-neue/files/bebas-neue-latin-400-normal.woff2"), join(work, "assets", "bebas.woff2"));
 copyFileSync(here("./node_modules/@fontsource/oswald/files/oswald-latin-200-normal.woff2"), join(work, "assets", "oswald-200.woff2"));
 copyFileSync(here("./node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2"), join(work, "assets", "archivo.woff2"));
+copyFileSync(here("./node_modules/@fontsource/playfair-display/files/playfair-display-latin-900-normal.woff2"), join(work, "assets", "pf-900.woff2"));
+copyFileSync(here("./node_modules/@fontsource/playfair-display/files/playfair-display-latin-600-italic.woff2"), join(work, "assets", "pf-600i.woff2"));
 // "condensed" = Bebas/Oswald (reference look); "wide" = expanded grotesk (Archivo)
 const FONTS = {
   condensed: { bold: `font-family:"Bebas",sans-serif;letter-spacing:0.02em`, thin: `font-family:"OswaldThin",sans-serif;font-weight:200;letter-spacing:0.3em;margin-right:-0.3em` },
@@ -82,7 +84,7 @@ for (const b of cfg.beats) {
   const dur = b.dur;
   const bg = b.bg ?? "primary";
   const box = (inner, extra = "") =>
-    `<div id="b${i}" class="beat clip" data-start="${f(start)}" data-duration="${f(dur)}" style="background:${col(bg)};${extra}">${footage(b, start, dur, i)}${inner}</div>`;
+    `<div id="b${i}" class="beat clip" data-start="${f(start)}" data-duration="${f(dur)}" style="background:${col(bg)};${extra}">${b.type === "shot" ? "" : footage(b, start, dur, i)}${inner}</div>`;
   const ink = () => (b.ink ? col(b.ink) : inkFor(bg));
   const pos = b.textTop ? `position:absolute;top:${b.textTop};left:0;right:0;` : "";
 
@@ -177,6 +179,60 @@ for (const b of cfg.beats) {
       break;
     }
 
+    case "mask": { // footage seen only through huge serif letters on black
+      const lines = b.lines.map((l, k) => {
+        const size = Math.min(W * 0.9 / (l.length * 0.74), H * 0.2);
+        return `<div class="mk" style="font-size:${f(size)}px">${esc(l)}</div>`;
+      }).join("");
+      html.push(box(`<div id="mo${i}" class="maskov"><div id="mt${i}" class="mkwrap">${lines}</div></div>`, "background:#000"));
+      if (b.enter !== "cut") js.push(`tl.fromTo("#mt${i}", { opacity: 0, filter: "blur(16px)", scale: 1.04 }, { opacity: 1, filter: "blur(0px)", scale: 1, duration: 0.4, ease: "power2.out" }, ${f(start)});`);
+      if (b.exit === "zoom") { // grow the letters past the camera until the footage fills the frame
+        js.push(`tl.to("#mo${i}", { scale: 9, duration: 0.6, ease: "power3.in" }, ${f(start + dur - 0.6)});`);
+        js.push(`tl.to("#mo${i}", { opacity: 0, duration: 0.3, ease: "power1.in" }, ${f(start + dur - 0.3)});`);
+      } else if (b.exit === "blur") {
+        js.push(`tl.to("#mt${i}", { opacity: 0, filter: "blur(18px)", scale: 0.97, duration: 0.35, ease: "power2.in" }, ${f(start + dur - 0.35)});`);
+      }
+      break;
+    }
+
+    case "shot": { // full-frame footage with a two-line italic caption; exits: flash | liquid | slices-in
+      const caps = [];
+      if (b.cap1) caps.push(`<div id="c1_${i}" class="it" style="color:#fff">${b.type1 === "letters" ? [...b.cap1].map((ch) => `<span class="ch">${ch === " " ? "&nbsp;" : esc(ch)}</span>`).join("") : esc(b.cap1)}</div>`);
+      if (b.cap2) caps.push(`<div id="c2_${i}" class="it" style="color:${col(b.capInk ?? "gold")}">${[...b.cap2].map((ch) => `<span class="ch">${ch === " " ? "&nbsp;" : esc(ch)}</span>`).join("")}</div>`);
+      let inner = `<div id="fx${i}" class="fx"${b.exit === "liquid" ? ` style="filter:url(#liq${i})"` : ""}>${footage(b, start, dur, i)}<div class="caps" style="top:${b.capTop ?? "9%"}">${caps.join("")}</div></div>`;
+      if (b.enterSlices) { // the shot arrives as vertical strips sliding in from alternate sides
+        const n = b.enterSlices;
+        js.push(`tl.set("#fx${i} > .bgv", { opacity: 0 }, ${f(start)});`);
+        js.push(`tl.set("#fx${i} > .bgv", { opacity: 1 }, ${f(start + 0.85)});`);
+        const strips = Array.from({ length: n }, (_, k) => `<div class="strip" id="st${i}_${k}" style="left:${f((k * W) / n)}px;width:${f(W / n + 1)}px"><img src="${asset(b.image)}" style="left:${f((-k * W) / n)}px"></div>`).join("");
+        inner += `<div id="sw${i}" class="stripwrap">${strips}</div>`;
+        for (let k = 0; k < n; k++)
+          js.push(`tl.fromTo("#st${i}_${k}", { y: ${f((k % 2 ? 1 : -1) * H * (0.55 + rand() * 0.4))} }, { y: 0, duration: 0.55, ease: "power3.out" }, ${f(start + 0.05 + rand() * 0.25)});`);
+        js.push(`tl.set("#sw${i}", { opacity: 0 }, ${f(start + 0.85)});`);
+      }
+      if (b.exit === "flash") inner += `<div id="lf${i}" class="leak"></div>`;
+      if (b.exit === "liquid") inner += `<svg width="0" height="0" style="position:absolute"><filter id="liq${i}" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.004 0.03" numOctaves="2" seed="3"/><feDisplacementMap id="dm${i}" in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter></svg><div id="ir${i}" class="iris"></div><div id="tv${i}" class="tvline"></div>`;
+      html.push(box(inner, "background:#000"));
+      const capAt = start + (b.enterSlices ? 0.9 : 0.25);
+      if (b.cap1) js.push(b.type1 === "letters"
+        ? `tl.fromTo("#c1_${i} .ch", { opacity: 0 }, { opacity: 1, duration: 0.01, stagger: 0.045 }, ${f(capAt)});`
+        : `tl.fromTo("#c1_${i}", { opacity: 0, filter: "blur(10px)", y: 8 }, { opacity: 1, filter: "blur(0px)", y: 0, duration: 0.55, ease: "power2.out" }, ${f(capAt)});`);
+      if (b.cap2) js.push(`tl.fromTo("#c2_${i} .ch", { opacity: 0, scale: 2.6, y: -14 }, { opacity: 1, scale: 1, y: 0, duration: 0.28, ease: "back.out(2)", stagger: 0.06 }, ${f(capAt + (b.cap1 ? 0.7 : 0))});`);
+      if (b.exit === "flash") js.push(`tl.fromTo("#lf${i}", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "power2.in" }, ${f(start + dur - 0.25)});`);
+      if (b.exit === "liquid") {
+        const s0 = start + dur - 0.75;
+        js.push(`tl.to("#dm${i}", { attr: { scale: 260 }, duration: 0.4, ease: "power2.in" }, ${f(s0)});`);
+        js.push(`tl.set("#ir${i}", { scale: 0, opacity: 1 }, ${f(s0 + 0.3)});`);
+        js.push(`tl.to("#ir${i}", { scale: 2.6, duration: 0.18, ease: "power2.in" }, ${f(s0 + 0.3)});`);
+        js.push(`tl.set("#fx${i}", { opacity: 0 }, ${f(s0 + 0.48)});`);
+        js.push(`tl.set("#ir${i}", { opacity: 0 }, ${f(s0 + 0.48)});`);
+        js.push(`tl.set("#tv${i}", { opacity: 1 }, ${f(s0 + 0.48)});`);
+        js.push(`tl.to("#tv${i}", { scaleY: 0.004, duration: 0.12, ease: "power3.in" }, ${f(s0 + 0.48)});`);
+        js.push(`tl.to("#tv${i}", { scaleX: 0, opacity: 0, duration: 0.15, ease: "power2.in" }, ${f(s0 + 0.6)});`);
+      }
+      break;
+    }
+
     case "end": { // logo (or brand name) + tagline on black, music stops
       const logo = cfg.logo ? `<img id="logo" src="${asset(cfg.logo)}" style="max-width:55%;max-height:22%;object-fit:contain">` : `<div id="logo" class="thin" style="color:#fff;font-size:${Math.round(fs * 0.6)}px">${esc(cfg.brand)}</div>`;
       const tag = cfg.tagline ? `<div id="tag" class="thin" style="color:#fff;font-size:${Math.round(fs * 0.22)}px;margin-top:${Math.round(fs * 0.3)}px">${esc(cfg.tagline)}</div>` : "";
@@ -210,6 +266,8 @@ writeFileSync(
     <style>
       @font-face { font-family: "Bebas"; src: url(assets/bebas.woff2) format("woff2"); }
       @font-face { font-family: "OswaldThin"; src: url(assets/oswald-200.woff2) format("woff2"); }
+      @font-face { font-family: "PFBlack"; src: url(assets/pf-900.woff2) format("woff2"); font-weight: 900; }
+      @font-face { font-family: "PFItalic"; src: url(assets/pf-600i.woff2) format("woff2"); font-weight: 600; font-style: italic; }
       @font-face { font-family: "Archivo"; src: url(assets/archivo.woff2) format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: ${W}px; height: ${H}px; overflow: hidden; background: #000; }
@@ -224,6 +282,18 @@ writeFileSync(
       .poster { position: relative; z-index: 1; width: 100%; height: auto; box-shadow: 0 30px 80px rgba(0,0,0,.35); }
       .cap { position: absolute; left: 0; right: 0; z-index: 2; text-align: center; font-size: ${Math.round(fs * (cfg.capScale ?? 0.45))}px; text-shadow: 0 2px 18px rgba(0,0,0,.18); }
       .ch { display: inline-block; }
+      .maskov { position: absolute; inset: 0; z-index: 2; background: #000; mix-blend-mode: multiply; display: flex; align-items: center; justify-content: center; }
+      .mkwrap { display: flex; flex-direction: column; align-items: center; transform: scaleY(1.45); }
+      .mk { font-family: "PFBlack", serif; font-weight: 900; color: #fff; line-height: 0.82; letter-spacing: -0.02em; }
+      .fx { position: absolute; inset: 0; }
+      .caps { position: absolute; left: 5%; right: 5%; z-index: 3; text-align: center; }
+      .it { font-family: "PFItalic", serif; font-style: italic; font-weight: 600; font-size: ${Math.round(W * 0.075)}px; line-height: 1.12; letter-spacing: -0.01em; text-shadow: 0 2px 16px rgba(0,0,0,.45); }
+      .stripwrap { position: absolute; inset: 0; z-index: 1; background: #000; }
+      .strip { position: absolute; top: 0; bottom: 0; overflow: hidden; }
+      .strip img { position: absolute; top: 0; width: ${W}px; height: ${H}px; object-fit: cover; }
+      .leak { position: absolute; inset: 0; z-index: 4; opacity: 0; background: radial-gradient(circle at 50% 45%, #fff 0 35%, #fff6e6 60%, rgba(255,240,215,.85) 100%); }
+      .iris { position: absolute; left: 50%; top: 50%; width: ${W}px; height: ${W}px; margin: -${W / 2}px 0 0 -${W / 2}px; border-radius: 50%; z-index: 5; opacity: 0; background: radial-gradient(circle, #fff 0 55%, rgba(255,255,255,0) 72%); }
+      .tvline { position: absolute; inset: 0; z-index: 6; opacity: 0; background: #fff; box-shadow: 0 0 40px 12px rgba(255,255,255,.8); }
       .streak { position: absolute; left: 0; right: 0; top: 40%; height: 14%;
         background: repeating-linear-gradient(0deg, #fff 0 3px, #555 3px 6px, transparent 6px 9px); filter: blur(1px); }
       .bars { position: absolute; left: 0; right: 0; bottom: 4%; height: 7%; }
