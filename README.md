@@ -46,3 +46,10 @@ Beat types: `clip` (`clip` video + `clipStart` or `image`; `zoom`, `origin`, `pa
 · `card` (logo + `lines` over a darkened `image`).
 Top-level `overlays` (absolute times, can straddle cuts): `leak` · `white` · `black` (`hold: true` stays black).
 Top-level `grade`: `filter`, `tint`, `lift`, `vignette`, `grain`. Cuts sit on ~0.8–1.2s steps, so a 120 BPM track fits.
+
+### Behind-the-scenes "opening soon" reel
+```bash
+node teaser.mjs input/aal/aal-v4.json   # -> output/aal-v4.mp4
+```
+Extra beat types: `grid` (logo on black + `cells` of footage popping in quadrants `tl|tr|bl|br` with `on`/`off` times)
+· `clip` with `flicker: { step, until, off }` (sign lights switching on).

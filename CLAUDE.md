@@ -19,7 +19,14 @@
   so from `input/aal/` media is `../../media/images/x.jpg` / `../../media/videos/x.mp4`.
 - Current teaser: `input/aal/aal-v3.json` → `node teaser.mjs input/aal/aal-v3.json` → `output/aal-v3.mp4`
   (add `--draft` for a fast preview render).
-- Edit style (copied from the reference reel at https://ph.pinterest.com/pin/1101904233826258857/):
+- Second teaser: `input/aal/aal-v4.json` → `output/aal-v4.mp4` (style copied from
+  https://ph.pinterest.com/pin/1076149273471890500/): "COMING SOON" cold open over the storefront, 0.2–0.4s punch-in
+  cuts of the store getting ready with a few 0.8s push-in holds, a `grid` beat (logo on black, footage popping on/off in
+  the four quadrants on the beat), a second burst with a white bloom, storefront `flicker` ("lights on"), logo +
+  COMING SOON + date end card. Bright, warm, saturated grade.
+- Videos must have an `id`, and beat wrappers must stay untimed (GSAP toggles their visibility), or the renderer
+  shows frozen or wrong frames. Run `npx hyperframes lint` in `projects/<name>/` after engine changes.
+- v3 edit style (copied from the reference reel at https://ph.pinterest.com/pin/1101904233826258857/):
   ~0.8–1.2s cuts on a 120 BPM feel, no text over footage, storefront open + punch-in, teal light-leak → white flash
   at start / middle / end, rack-focus-in (`focus`), slow push-ins (`zoom`), one dip to black mid-way, warm matte
   film grade with grain, logo + date end card, flash to black. Keep total around 15–20s, portrait 1080x1920.

@@ -67,7 +67,7 @@ const footage = (b, start, dur, i) => {
       (b.tint ? `<div class="tint" style="background:${col(b.bg ?? "primary")};opacity:${b.tint}"></div>` : "");
   }
   if (!b.clip) return "";
-  return `<video class="clip bgv" src="${asset(b.clip)}" data-start="${f(start)}" data-duration="${f(dur)}" data-media-start="${b.clipStart ?? 0}" muted></video>
+  return `<video id="fv${i}" class="clip bgv" src="${asset(b.clip)}" data-start="${f(start)}" data-duration="${f(dur)}" data-media-start="${b.clipStart ?? 0}" muted></video>
     <div class="tint" style="background:${col(b.bg ?? "primary")};opacity:${b.tint ?? 0.55}"></div>`;
 };
 const lineHtml = (lines, color, letters = false) =>
@@ -84,8 +84,12 @@ for (const b of cfg.beats) {
   const start = t;
   const dur = b.dur;
   const bg = b.bg ?? "primary";
-  const box = (inner, extra = "") =>
-    `<div id="b${i}" class="beat clip" data-start="${f(start)}" data-duration="${f(dur)}" style="background:${col(bg)};${extra}">${b.type === "shot" ? "" : footage(b, start, dur, i)}${inner}</div>`;
+  // Beat wrappers are untimed and shown/hidden by GSAP: a timed wrapper around a timed <video> makes the
+  // renderer pull the wrong source frames, so only the media carries data-start.
+  const box = (inner, extra = "") => {
+    js.push(`tl.set("#b${i}", { visibility: "visible" }, ${f(start)});`, `tl.set("#b${i}", { visibility: "hidden" }, ${f(start + dur)});`);
+    return `<div id="b${i}" class="beat" style="visibility:hidden;background:${col(bg)};${extra}">${b.type === "shot" ? "" : footage(b, start, dur, i)}${inner}</div>`;
+  };
   const ink = () => (b.ink ? col(b.ink) : inkFor(bg));
   const pos = b.textTop ? `position:absolute;top:${b.textTop};left:0;right:0;` : "";
 
@@ -237,13 +241,38 @@ for (const b of cfg.beats) {
     case "clip": { // full-frame footage cut: slow push/pan, optional rack-focus in, optional dip to black out
       const media = b.image
         ? `<img class="bgv" src="${asset(b.image)}" style="object-position:${b.objectPos ?? "50% 50%"}">`
-        : `<video class="clip bgv" src="${asset(b.clip)}" data-start="${f(start)}" data-duration="${f(dur)}" data-media-start="${b.clipStart ?? 0}" muted></video>`;
+        : `<video id="v${i}" class="clip bgv" src="${asset(b.clip)}" data-start="${f(start)}" data-duration="${f(dur)}" data-media-start="${b.clipStart ?? 0}" muted></video>`;
       html.push(box(`<div id="m${i}" class="bgv" style="transform-origin:${b.origin ?? "50% 50%"}">${media}</div><div id="dp${i}" class="tint" style="background:#000;opacity:0;z-index:3"></div>`, "background:#000"));
       const [z0, z1] = b.zoom ?? [1.0, 1.06];
       const [p0, p1] = b.pan ?? [0, 0];
       js.push(`tl.fromTo("#m${i}", { scale: ${z0}, xPercent: ${p0} }, { scale: ${z1}, xPercent: ${p1}, duration: ${f(dur)}, ease: "${b.ease ?? "none"}" }, ${f(start)});`);
       if (b.focus) js.push(`tl.fromTo("#m${i}", { filter: "blur(${b.focus}px)" }, { filter: "blur(0px)", duration: ${f(b.focusDur ?? 0.35)}, ease: "power2.out" }, ${f(start)});`);
+      if (b.flicker) { // sign "lights switching on": alternate dull grey / full colour, settling on colour
+        const st = b.flicker.step ?? 0.2;
+        for (let k = 0; k * st < (b.flicker.until ?? dur * 0.6); k++)
+          js.push(`tl.set("#m${i}", { filter: "${k % 2 ? "none" : (b.flicker.off ?? "grayscale(1) brightness(0.75)")}" }, ${f(start + k * st)});`);
+        js.push(`tl.set("#m${i}", { filter: "none" }, ${f(start + Math.ceil((b.flicker.until ?? dur * 0.6) / st) * st)});`);
+      }
       if (b.exit === "dip") js.push(`tl.to("#dp${i}", { opacity: 1, duration: ${f(b.dipDur ?? 0.4)}, ease: "power1.in" }, ${f(start + dur - (b.dipDur ?? 0.4))});`);
+      break;
+    }
+
+    case "grid": { // logo on black while footage panels pop on/off in the four quadrants on the beat
+      const Q = { tl: "left:0;top:0", tr: "left:50%;top:0", bl: "left:0;top:50%", br: "left:50%;top:50%" };
+      const logo = cfg.logo ? `<img id="gl${i}" src="${asset(cfg.logo)}" style="position:relative;z-index:1;width:${b.logoWidth ?? "50%"};height:auto">` : `<div id="gl${i}" class="bold" style="position:relative;z-index:1;color:#fff">${esc(cfg.brand)}</div>`;
+      const cells = b.cells.map((c, k) => {
+        const on = start + c.on, len = (c.off ?? dur) - c.on;
+        const media = c.image
+          ? `<img class="bgv" src="${asset(c.image)}" style="object-position:${c.objectPos ?? "50% 50%"}">`
+          : `<video id="gv${i}_${k}" class="clip bgv" src="${asset(c.clip)}" data-start="${f(on)}" data-duration="${f(len)}" data-media-start="${c.clipStart ?? 0}" muted></video>`;
+        js.push(`tl.set("#gc${i}_${k}", { opacity: 1 }, ${f(on)});`);
+        if (c.off != null && c.off < dur) js.push(`tl.set("#gc${i}_${k}", { opacity: 0 }, ${f(start + c.off)});`);
+        js.push(`tl.fromTo("#gm${i}_${k}", { scale: 1.12 }, { scale: 1.0, duration: ${f(Math.min(len, 0.5))}, ease: "expo.out" }, ${f(on)});`);
+        return `<div id="gc${i}_${k}" class="cell" style="${Q[c.q]};opacity:0"><div id="gm${i}_${k}" class="bgv">${media}</div></div>`;
+      }).join("");
+      html.push(box(`${logo}${cells}`, "background:#000"));
+      js.push(`tl.fromTo("#gl${i}", { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.25, ease: "power2.out" }, ${f(start)});`);
+      js.push(`tl.to("#gl${i}", { scale: 1.06, duration: ${f(dur)}, ease: "none" }, ${f(start)});`);
       break;
     }
 
@@ -330,6 +359,7 @@ writeFileSync(
       .beat { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
       .bgv { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
       .tint { position: absolute; inset: 0; }
+      .cell { position: absolute; width: 50%; height: 50%; overflow: hidden; z-index: 2; }
       .ovl { position: absolute; inset: 0; z-index: 50; pointer-events: none; }
       .word, .stack { position: relative; z-index: 2; text-align: center; font-size: ${fs}px; line-height: 1; }
       .stack { display: flex; flex-direction: column; align-items: center; }
