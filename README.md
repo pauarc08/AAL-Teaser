@@ -34,3 +34,15 @@ Edit `teaser.json`: `brand`, `logo` (PNG path), `tagline`, `colors`, `music` (mp
 Beat types: `blank` · `cut` (one word, hard cut) · `strobe` (2-frame style flicker) · `lockup` (bold + thin lines, `fadeOut`)
 · `reveal` (letter-by-letter, `exit: "scatter"` for 3D letter explode) · `glitch` (VHS streak + RGB bars) · `end` (logo + tagline, music stops).
 Any beat can take `"clip": "input/shot.mp4"` (+ `clipStart`, `tint`) to put your own footage behind the text.
+
+### Footage reel (store-walkthrough teaser)
+```bash
+node teaser.mjs input/aal/aal-v3.json   # -> output/aal-v3.mp4 (All About Linen, opening Nov 6, 2026)
+```
+Edit style copied from a fashion pop-up reel: ~1s cuts with no text over footage, storefront open + punch-in,
+teal light-leak → white flash transitions, rack-focus-in on cuts, slow push-ins, a dip to black mid-way,
+warm matte film grade with grain, logo end card, flash to black.
+Beat types: `clip` (`clip` video + `clipStart` or `image`; `zoom`, `origin`, `pan`, `focus` blur-in px, `exit: "dip"`)
+· `card` (logo + `lines` over a darkened `image`).
+Top-level `overlays` (absolute times, can straddle cuts): `leak` · `white` · `black` (`hold: true` stays black).
+Top-level `grade`: `filter`, `tint`, `lift`, `vignette`, `grain`. Cuts sit on ~0.8–1.2s steps, so a 120 BPM track fits.

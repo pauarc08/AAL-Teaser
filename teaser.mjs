@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Kinetic-typography teaser: one-word hard cuts, color-flip backgrounds, strobe, letter reveal,
 // 3D letter scatter, VHS glitch, logo end card. Optional footage behind any beat.
+// Footage reels: clip cuts with push/pan + rack focus, light-leak overlays, film grade, end card.
 //
 // Usage: node teaser.mjs [teaser.json] [--draft]
 import { spawnSync } from "node:child_process";
@@ -233,6 +234,31 @@ for (const b of cfg.beats) {
       break;
     }
 
+    case "clip": { // full-frame footage cut: slow push/pan, optional rack-focus in, optional dip to black out
+      const media = b.image
+        ? `<img class="bgv" src="${asset(b.image)}" style="object-position:${b.objectPos ?? "50% 50%"}">`
+        : `<video class="clip bgv" src="${asset(b.clip)}" data-start="${f(start)}" data-duration="${f(dur)}" data-media-start="${b.clipStart ?? 0}" muted></video>`;
+      html.push(box(`<div id="m${i}" class="bgv" style="transform-origin:${b.origin ?? "50% 50%"}">${media}</div><div id="dp${i}" class="tint" style="background:#000;opacity:0;z-index:3"></div>`, "background:#000"));
+      const [z0, z1] = b.zoom ?? [1.0, 1.06];
+      const [p0, p1] = b.pan ?? [0, 0];
+      js.push(`tl.fromTo("#m${i}", { scale: ${z0}, xPercent: ${p0} }, { scale: ${z1}, xPercent: ${p1}, duration: ${f(dur)}, ease: "${b.ease ?? "none"}" }, ${f(start)});`);
+      if (b.focus) js.push(`tl.fromTo("#m${i}", { filter: "blur(${b.focus}px)" }, { filter: "blur(0px)", duration: ${f(b.focusDur ?? 0.35)}, ease: "power2.out" }, ${f(start)});`);
+      if (b.exit === "dip") js.push(`tl.to("#dp${i}", { opacity: 1, duration: ${f(b.dipDur ?? 0.4)}, ease: "power1.in" }, ${f(start + dur - (b.dipDur ?? 0.4))});`);
+      break;
+    }
+
+    case "card": { // end card: logo + small tracked lines over a darkened, slowly pushing background
+      const bgm = b.image ? `<div id="cb${i}" class="bgv"><img class="bgv" src="${asset(b.image)}" style="object-position:${b.objectPos ?? "50% 50%"}"></div><div class="tint" style="background:#000;opacity:${b.darken ?? 0.55}"></div>` : "";
+      const logo = cfg.logo ? `<img id="cl${i}" src="${asset(cfg.logo)}" style="width:${b.logoWidth ?? "58%"};height:auto">` : `<div id="cl${i}" class="thin" style="color:#fff;font-size:${Math.round(fs * 0.6)}px">${esc(cfg.brand)}</div>`;
+      const lines = (b.lines ?? []).map((l, k) => `<div id="cx${i}_${k}" class="${l.w === "bold" ? "bold" : "thin"}" style="color:${col(l.ink ?? "light")};font-size:${Math.round(W * (l.size ?? 0.04))}px;margin-top:${k ? "0.6em" : "1.6em"}">${esc(l.t)}</div>`).join("");
+      html.push(box(`${bgm}<div class="stack" style="width:100%">${logo}${lines}</div>`, "background:#000"));
+      if (b.image) js.push(`tl.fromTo("#cb${i}", { scale: 1.12, filter: "blur(${b.blur ?? 6}px)" }, { scale: 1.0, filter: "blur(${b.blur ?? 6}px)", duration: ${f(dur)}, ease: "none" }, ${f(start)});`);
+      js.push(`tl.fromTo("#cl${i}", { opacity: 0, filter: "blur(14px)", scale: 1.05 }, { opacity: 1, filter: "blur(0px)", scale: 1, duration: 0.8, ease: "power2.out" }, ${f(start + (b.logoAt ?? 0.2))});`);
+      (b.lines ?? []).forEach((l, k) =>
+        js.push(`tl.fromTo("#cx${i}_${k}", { opacity: 0, y: 14, filter: "blur(6px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.7, ease: "power2.out" }, ${f(start + (b.logoAt ?? 0.2) + 0.6 + k * 0.35)});`));
+      break;
+    }
+
     case "end": { // logo (or brand name) + tagline on black, music stops
       const logo = cfg.logo ? `<img id="logo" src="${asset(cfg.logo)}" style="max-width:55%;max-height:22%;object-fit:contain">` : `<div id="logo" class="thin" style="color:#fff;font-size:${Math.round(fs * 0.6)}px">${esc(cfg.brand)}</div>`;
       const tag = cfg.tagline ? `<div id="tag" class="thin" style="color:#fff;font-size:${Math.round(fs * 0.22)}px;margin-top:${Math.round(fs * 0.3)}px">${esc(cfg.tagline)}</div>` : "";
@@ -248,10 +274,39 @@ for (const b of cfg.beats) {
 }
 
 const total = t;
+
+// Overlays sit above the cuts at absolute times, so a transition can straddle a cut like in the reference.
+const over = [];
+for (const [k, o] of (cfg.overlays ?? []).entries()) {
+  const peak = o.at + o.dur * (o.peak ?? 0.4);
+  if (o.type === "leak") { // teal light leak sweeps in, burns to white, then fades off the next shot
+    const c = o.color ?? "#5fe6dc";
+    over.push(`<div id="lk${k}" class="ovl" style="opacity:0;mix-blend-mode:screen;background:radial-gradient(ellipse 70% 55% at 30% 35%, ${c} 0%, rgba(0,0,0,0) 70%), radial-gradient(ellipse 60% 50% at 75% 70%, ${o.color2 ?? "#ffd9a8"} 0%, rgba(0,0,0,0) 70%), linear-gradient(160deg, ${c}88, rgba(0,0,0,0))"></div><div id="lw${k}" class="ovl" style="opacity:0;background:#fffdf8"></div>`);
+    js.push(`tl.fromTo("#lk${k}", { opacity: 0, xPercent: -18 }, { opacity: 1, xPercent: 8, duration: ${f(peak - o.at)}, ease: "power1.in" }, ${f(o.at)});`);
+    js.push(`tl.fromTo("#lw${k}", { opacity: 0 }, { opacity: ${o.white ?? 1}, duration: ${f((peak - o.at) * 0.6)}, ease: "power2.in" }, ${f(peak - (peak - o.at) * 0.6)});`);
+    js.push(`tl.to(["#lk${k}", "#lw${k}"], { opacity: 0, duration: ${f(o.at + o.dur - peak)}, ease: "power2.out" }, ${f(peak)});`);
+  } else if (o.type === "white" || o.type === "black") { // plain flash / dip
+    over.push(`<div id="of${k}" class="ovl" style="opacity:0;background:${o.type === "white" ? "#fffdf8" : "#000"}"></div>`);
+    js.push(`tl.fromTo("#of${k}", { opacity: 0 }, { opacity: 1, duration: ${f(peak - o.at)}, ease: "power2.in" }, ${f(o.at)});`);
+    if (!o.hold) js.push(`tl.to("#of${k}", { opacity: 0, duration: ${f(o.at + o.dur - peak)}, ease: "power2.out" }, ${f(peak)});`);
+  }
+}
+const G = cfg.grade;
+if (G) { // warm matte film look: soft-light tint, lifted blacks, vignette, moving grain
+  if (G.tint) over.unshift(`<div class="ovl" style="background:${G.tint};mix-blend-mode:soft-light;opacity:${G.tintAmount ?? 0.35}"></div>`);
+  if (G.lift) over.unshift(`<div class="ovl" style="background:${G.lift};mix-blend-mode:lighten"></div>`);
+  if (G.vignette) over.push(`<div class="ovl" style="background:radial-gradient(ellipse 85% 75% at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,${G.vignette}) 100%)"></div>`);
+  if (G.grain) {
+    const noise = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>`;
+    over.push(`<div id="grain" class="ovl" style="background-image:url(&quot;${noise}&quot;);mix-blend-mode:overlay;opacity:${G.grain}"></div>`);
+    for (let k = 0; k < Math.round(total / (2 * frame)); k++)
+      js.push(`tl.set("#grain", { backgroundPosition: "${Math.round(rand() * 300)}px ${Math.round(rand() * 300)}px" }, ${f(k * 2 * frame)});`);
+  }
+}
 let music = "";
 if (cfg.music) {
   const lead = cfg.beats[0]?.type === "blank" ? cfg.beats[0].dur : 0;
-  const endStart = total - (["end", "poster"].includes(cfg.beats.at(-1)?.type) && !cfg.musicThroughEnd ? cfg.beats.at(-1).dur : 0);
+  const endStart = total - (["end", "poster", "card"].includes(cfg.beats.at(-1)?.type) && !cfg.musicThroughEnd ? cfg.beats.at(-1).dur : 0);
   music = `<audio class="clip" src="${asset(cfg.music)}" data-start="${f(lead)}" data-duration="${f(endStart - lead)}" data-media-start="${cfg.musicStart ?? 0}" data-volume="${cfg.musicVolume ?? 1}" data-fade-out="0.15"></audio>`;
 }
 
@@ -275,6 +330,7 @@ writeFileSync(
       .beat { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
       .bgv { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
       .tint { position: absolute; inset: 0; }
+      .ovl { position: absolute; inset: 0; z-index: 50; pointer-events: none; }
       .word, .stack { position: relative; z-index: 2; text-align: center; font-size: ${fs}px; line-height: 1; }
       .stack { display: flex; flex-direction: column; align-items: center; }
       .bold { ${font.bold}; }
@@ -302,7 +358,10 @@ writeFileSync(
   </head>
   <body>
     <div id="root" data-composition-id="main" data-start="0" data-duration="${f(total)}" data-width="${W}" data-height="${H}">
+      <div id="graded" style="position:absolute;inset:0;${G?.filter ? `filter:${G.filter}` : ""}">
       ${html.join("\n      ")}
+      </div>
+      ${over.join("\n      ")}
       ${music}
     </div>
     <script>
