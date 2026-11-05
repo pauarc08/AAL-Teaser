@@ -1,0 +1,162 @@
+{
+ "brand": "All About Linen",
+ "logo": "logo_white.png",
+ "size": "portrait",
+ "fps": 30,
+ "font": "wide",
+ "music": null,
+ "colors": {
+  "primary": "#1e2023",
+  "light": "#ffffff",
+  "accent": "#f3e4c6",
+  "dark": "#000000"
+ },
+ "grade": {
+  "filter": "saturate(0.82) contrast(1.1) brightness(1.02)",
+  "tint": "#e8dccb",
+  "tintAmount": 0.2,
+  "vignette": 0.35,
+  "grain": 0.06
+ },
+ "overlays": [
+  {
+   "type": "strips",
+   "at": 0.15,
+   "dur": 4.7,
+   "top": "13%",
+   "lines": [
+    "NEW STORE",
+    "OPENING",
+    "NOV 6"
+   ],
+   "sub": "all about linen"
+  },
+  {
+   "type": "strips",
+   "at": 20.75,
+   "dur": 1.75,
+   "top": "36%",
+   "lines": [
+    "SEE YOU",
+    "FRIDAY!"
+   ],
+   "size": 0.14
+  }
+ ],
+ "beats": [
+  {
+   "type": "clip",
+   "clip": "../../media/videos/drive.mp4",
+   "clipStart": 0.0,
+   "speed": 4,
+   "dur": 4.0,
+   "zoom": [
+    1.12,
+    1.16
+   ],
+   "origin": "50% 0%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/drive.mp4",
+   "clipStart": 18.3,
+   "speed": 3,
+   "dur": 1.9,
+   "zoom": [
+    1.12,
+    1.16
+   ],
+   "origin": "50% 0%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/drive.mp4",
+   "clipStart": 24.0,
+   "speed": 4,
+   "dur": 3.15,
+   "zoom": [
+    1.12,
+    1.16
+   ],
+   "origin": "50% 0%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/drive.mp4",
+   "clipStart": 36.8,
+   "speed": 2.4,
+   "dur": 3.0,
+   "zoom": [
+    1.1,
+    1.25
+   ],
+   "origin": "50% 40%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/gorilla.mp4",
+   "clipStart": 2.0,
+   "speed": 3,
+   "dur": 1.8,
+   "zoom": [
+    1.0,
+    1.04
+   ],
+   "origin": "50% 50%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/gorilla.mp4",
+   "clipStart": 15.0,
+   "speed": 2,
+   "dur": 2.7,
+   "zoom": [
+    1.0,
+    1.04
+   ],
+   "origin": "50% 50%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/gorilla.mp4",
+   "clipStart": 20.4,
+   "speed": 1,
+   "dur": 2.2,
+   "zoom": [
+    1.0,
+    1.06
+   ],
+   "origin": "50% 50%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/gorilla.mp4",
+   "clipStart": 22.6,
+   "speed": 2,
+   "dur": 1.95,
+   "zoom": [
+    1.04,
+    1.12
+   ],
+   "origin": "50% 40%"
+  },
+  {
+   "type": "blank",
+   "bg": "dark",
+   "dur": 1.8
+  },
+  {
+   "type": "card",
+   "logoAt": 0.05,
+   "logoWidth": "58%",
+   "lines": [
+    {
+     "t": "GRAND OPENING \u00b7 06.11.2026",
+     "size": 0.05,
+     "ink": "accent"
+    }
+   ],
+   "dur": 2.6
+  }
+ ]
+}

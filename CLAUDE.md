@@ -24,6 +24,10 @@
   cuts of the store getting ready with a few 0.8s push-in holds, a `grid` beat (logo on black, footage popping on/off in
   the four quadrants on the beat), a second burst with a white bloom, storefront `flicker` ("lights on"), logo +
   COMING SOON + date end card. Bright, warm, saturated grade.
+- Third teaser: `input/aal/aal-v5.json` → `output/aal-v5.mp4` (style copied from
+  https://ph.pinterest.com/pin/463448617930646587/): POV hyperlapse journey to the store (`clip` with `speed`, pre-cut by
+  ffmpeg) with a few jump cuts, ransom-note marker title on torn paper strips (`strips` overlay), arrival at the
+  warehouse, the gorilla-mask reveal (cut to black before the face shows), "SEE YOU FRIDAY!" strips, logo end card.
 - Videos must have an `id`, and beat wrappers must stay untimed (GSAP toggles their visibility), or the renderer
   shows frozen or wrong frames. Run `npx hyperframes lint` in `projects/<name>/` after engine changes.
 - v3 edit style (copied from the reference reel at https://ph.pinterest.com/pin/1101904233826258857/):

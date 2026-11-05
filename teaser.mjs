@@ -32,6 +32,7 @@ copyFileSync(here("./node_modules/@fontsource/oswald/files/oswald-latin-200-norm
 copyFileSync(here("./node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2"), join(work, "assets", "archivo.woff2"));
 copyFileSync(here("./node_modules/@fontsource/playfair-display/files/playfair-display-latin-900-normal.woff2"), join(work, "assets", "pf-900.woff2"));
 copyFileSync(here("./node_modules/@fontsource/playfair-display/files/playfair-display-latin-600-italic.woff2"), join(work, "assets", "pf-600i.woff2"));
+copyFileSync(here("./node_modules/@fontsource/permanent-marker/files/permanent-marker-latin-400-normal.woff2"), join(work, "assets", "marker.woff2"));
 // "condensed" = Bebas/Oswald (reference look); "wide" = expanded grotesk (Archivo)
 const FONTS = {
   condensed: { bold: `font-family:"Bebas",sans-serif;letter-spacing:0.02em`, thin: `font-family:"OswaldThin",sans-serif;font-weight:200;letter-spacing:0.3em;margin-right:-0.3em` },
@@ -45,6 +46,19 @@ const asset = (p) => {
   const dest = `${basename(p, extname(p)).replace(/[^\w-]/g, "_")}${extname(p)}`;
   copyFileSync(src, join(work, "assets", dest));
   return `assets/${dest}`;
+};
+
+// Hyperlapse: pre-cut a sped-up, silent segment of a clip with ffmpeg (cached by its parameters).
+const fastClip = (b, dur) => {
+  const from = b.clipStart ?? 0;
+  const name = `${basename(b.clip, extname(b.clip)).replace(/[^\w-]/g, "_")}_${from}_${dur}_${b.speed}x.mp4`;
+  const out = join(work, "assets", name);
+  if (!existsSync(out)) {
+    const r = spawnSync("ffmpeg", ["-v", "error", "-y", "-ss", String(from), "-i", resolve(base, b.clip), "-t", String(dur * b.speed + 0.2),
+      "-vf", `setpts=PTS/${b.speed},fps=${fps}`, "-an", "-c:v", "libx264", "-crf", "16", "-preset", "fast", "-pix_fmt", "yuv420p", out], { stdio: "inherit" });
+    if (r.status !== 0) throw new Error(`ffmpeg failed on ${b.clip}`);
+  }
+  return `assets/${name}`;
 };
 
 // deterministic randomness so every render is identical
@@ -241,7 +255,7 @@ for (const b of cfg.beats) {
     case "clip": { // full-frame footage cut: slow push/pan, optional rack-focus in, optional dip to black out
       const media = b.image
         ? `<img class="bgv" src="${asset(b.image)}" style="object-position:${b.objectPos ?? "50% 50%"}">`
-        : `<video id="v${i}" class="clip bgv" src="${asset(b.clip)}" data-start="${f(start)}" data-duration="${f(dur)}" data-media-start="${b.clipStart ?? 0}" muted></video>`;
+        : `<video id="v${i}" class="clip bgv" src="${b.speed ? fastClip(b, dur) : asset(b.clip)}" data-start="${f(start)}" data-duration="${f(dur)}" data-media-start="${b.speed ? 0 : b.clipStart ?? 0}" muted></video>`;
       html.push(box(`<div id="m${i}" class="bgv" style="transform-origin:${b.origin ?? "50% 50%"}">${media}</div><div id="dp${i}" class="tint" style="background:#000;opacity:0;z-index:3"></div>`, "background:#000"));
       const [z0, z1] = b.zoom ?? [1.0, 1.06];
       const [p0, p1] = b.pan ?? [0, 0];
@@ -314,6 +328,24 @@ for (const [k, o] of (cfg.overlays ?? []).entries()) {
     js.push(`tl.fromTo("#lk${k}", { opacity: 0, xPercent: -18 }, { opacity: 1, xPercent: 8, duration: ${f(peak - o.at)}, ease: "power1.in" }, ${f(o.at)});`);
     js.push(`tl.fromTo("#lw${k}", { opacity: 0 }, { opacity: ${o.white ?? 1}, duration: ${f((peak - o.at) * 0.6)}, ease: "power2.in" }, ${f(peak - (peak - o.at) * 0.6)});`);
     js.push(`tl.to(["#lk${k}", "#lw${k}"], { opacity: 0, duration: ${f(o.at + o.dur - peak)}, ease: "power2.out" }, ${f(peak)});`);
+  } else if (o.type === "strips") { // ransom-note title: marker words on torn paper strips, slapped on one by one, boiling
+    const torn = () => { // jagged top/bottom edges
+      const pts = [];
+      for (let x = 0; x <= 100; x += 5) pts.push(`${x}% ${f(rand() * 7)}%`);
+      for (let x = 100; x >= 0; x -= 5) pts.push(`${x}% ${f(100 - rand() * 7)}%`);
+      return `polygon(${pts.join(",")})`;
+    };
+    const strips = o.lines.map((t, j) => `<div><div id="sp${k}_${j}" class="paper" style="clip-path:${torn()};font-size:${Math.round(W * (o.size ?? 0.12))}px">${esc(t)}</div></div>`).join("");
+    const sub = o.sub ? `<div id="ss${k}" class="msub" style="font-size:${Math.round(W * (o.subSize ?? 0.06))}px">${esc(o.sub)}</div>` : "";
+    over.push(`<div id="rw${k}" class="ovl swrap" style="opacity:0;top:${o.top ?? "10%"}">${strips}${sub}</div>`);
+    js.push(`tl.set("#rw${k}", { opacity: 1 }, ${f(o.at)});`, `tl.set("#rw${k}", { opacity: 0 }, ${f(o.at + o.dur)});`);
+    const steps = Math.round(o.dur / (3 * frame));
+    o.lines.forEach((_, j) => {
+      const r0 = (rand() - 0.5) * 8, x0 = (rand() - 0.5) * W * 0.06;
+      js.push(`tl.fromTo("#sp${k}_${j}", { opacity: 0, scale: 1.4, rotation: ${f(r0)}, x: ${f(x0)} }, { opacity: 1, scale: 1, duration: 0.1, ease: "power4.out" }, ${f(o.at + 0.1 + j * (o.stagger ?? 0.15))});`);
+      for (let n = 1; n < steps; n++) js.push(`tl.set("#sp${k}_${j}", { rotation: ${f(r0 + (rand() - 0.5) * 1.4)} }, ${f(o.at + n * 3 * frame)});`);
+    });
+    if (sub) js.push(`tl.fromTo("#ss${k}", { opacity: 0 }, { opacity: 1, duration: 0.01 }, ${f(o.at + 0.1 + o.lines.length * (o.stagger ?? 0.15) + 0.2)});`);
   } else if (o.type === "white" || o.type === "black") { // plain flash / dip
     over.push(`<div id="of${k}" class="ovl" style="opacity:0;background:${o.type === "white" ? "#fffdf8" : "#000"}"></div>`);
     js.push(`tl.fromTo("#of${k}", { opacity: 0 }, { opacity: 1, duration: ${f(peak - o.at)}, ease: "power2.in" }, ${f(o.at)});`);
@@ -352,6 +384,7 @@ writeFileSync(
       @font-face { font-family: "OswaldThin"; src: url(assets/oswald-200.woff2) format("woff2"); }
       @font-face { font-family: "PFBlack"; src: url(assets/pf-900.woff2) format("woff2"); font-weight: 900; }
       @font-face { font-family: "PFItalic"; src: url(assets/pf-600i.woff2) format("woff2"); font-weight: 600; font-style: italic; }
+      @font-face { font-family: "Marker"; src: url(assets/marker.woff2) format("woff2"); }
       @font-face { font-family: "Archivo"; src: url(assets/archivo.woff2) format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: ${W}px; height: ${H}px; overflow: hidden; background: #000; }
@@ -360,6 +393,9 @@ writeFileSync(
       .bgv { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
       .tint { position: absolute; inset: 0; }
       .cell { position: absolute; width: 50%; height: 50%; overflow: hidden; z-index: 2; }
+      .swrap { bottom: auto; z-index: 60; display: flex; flex-direction: column; align-items: center; gap: 0.15em; }
+      .paper { display: inline-block; background: #f6f3ec; color: #111; font-family: "Marker", cursive; line-height: 1; padding: 0.16em 0.3em 0.1em; letter-spacing: 0.02em; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+      .msub { font-family: "Marker", cursive; color: #fff; margin-top: 0.6em; text-shadow: 0 2px 10px rgba(0,0,0,.4); }
       .ovl { position: absolute; inset: 0; z-index: 50; pointer-events: none; }
       .word, .stack { position: relative; z-index: 2; text-align: center; font-size: ${fs}px; line-height: 1; }
       .stack { display: flex; flex-direction: column; align-items: center; }
