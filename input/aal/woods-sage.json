@@ -1,0 +1,38 @@
+{
+  "brand": "All About Linen",
+  "logo": "logo_white.png",
+  "size": "portrait",
+  "fps": 30,
+  "font": "wide",
+  "music": null,
+  "_sources": {
+    "page": "https://allaboutlinen.com.au/products/renee-taylor-woods-jacquard-euro-pcase-sage",
+    "design": "fresh green-toned, featuring a tropical banana leaf design",
+    "fabric": "Front: Cotton/Polyester  Reverse: Cotton",
+    "size": "European P/Case - 65 x 65 Cms + 5 cms flange",
+    "care": "cold gentle machine wash, no bleach, do not dry clean (search-index summary: confirm on the page)",
+    "not_used": "price (ambiguous in the index), any review or rating"
+  },
+  "colors": {
+    "sage": "#56654f",
+    "sagelight": "#b9c4aa",
+    "cream": "#f4efe6",
+    "charcoal": "#1e2023",
+    "light": "#f4efe6",
+    "dark": "#000000"
+  },
+  "grade": { "vignette": 0.3, "grain": 0.05 },
+  "overlays": [
+    { "type": "white", "at": 23.85, "dur": 0.5, "peak": 0.35, "white": 0.8 }
+  ],
+  "beats": [
+    { "type": "feature", "bg": "sage", "ink": "cream", "art": "leaves", "label": "Product spotlight", "title": "Renee Taylor", "lines": ["WOODS JACQUARD · SAGE"], "dur": 3.0 },
+    { "type": "feature", "bg": "sagelight", "ink": "charcoal", "label": "Colour", "swatch": "#56654f", "title": "Sage", "lines": ["A fresh, green-toned design"], "dur": 4.0 },
+    { "type": "feature", "bg": "sage", "ink": "cream", "art": "leaves", "artOpacity": 0.3, "leaves": [[0.05, 0.12, 20, 1.0], [1.0, 0.82, 200, 1.0], [0.0, 0.97, -35, 0.8], [0.85, 0.02, 160, 0.7]], "label": "Design", "title": "Tropical banana leaf", "lines": ["Jacquard pattern"], "dur": 4.5 },
+    { "type": "feature", "bg": "cream", "ink": "sage", "label": "Material", "title": "Cotton & polyester front", "lines": ["Cotton reverse"], "dur": 4.5 },
+    { "type": "feature", "bg": "sage", "ink": "cream", "label": "Size", "title": "European pillowcase", "lines": ["65 × 65 cm", "+ 5 cm flange"], "dur": 4.0 },
+    { "type": "feature", "bg": "sagelight", "ink": "charcoal", "label": "Care", "title": "Easy to look after", "lines": ["Cold, gentle machine wash", "No bleach · Do not dry clean"], "dur": 4.0 },
+    { "type": "feature", "image": "../../media/images/photo09.jpg", "zoom": [1.05, 1.12], "tint": 0.55, "bg": "charcoal", "ink": "cream", "label": "Available at", "title": "All About Linen", "lines": ["allaboutlinen.com.au"], "dur": 2.5 },
+    { "type": "card", "logoAt": 0.1, "logoWidth": "56%", "lines": [{ "t": "WOODS JACQUARD · SAGE", "size": 0.036, "ink": "sagelight" }, { "t": "allaboutlinen.com.au", "size": 0.04 }], "dur": 3.5 }
+  ]
+}

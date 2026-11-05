@@ -28,6 +28,11 @@
   https://ph.pinterest.com/pin/463448617930646587/): POV hyperlapse journey to the store (`clip` with `speed`, pre-cut by
   ffmpeg) with a few jump cuts, ransom-note marker title on torn paper strips (`strips` overlay), arrival at the
   warehouse, the gorilla-mask reveal (cut to black before the face shows), "SEE YOU FRIDAY!" strips, logo end card.
+- Product video: `input/aal/woods-sage.json` → `output/woods-sage.mp4` (30s Renee Taylor Woods Jacquard Sage spotlight).
+  `feature` beats (label + italic serif title + detail lines, optional drawn `leaves` art / `swatch`). Product claims come
+  ONLY from allaboutlinen.com.au product pages (sources recorded in the config's `_sources`); no prices unless verified,
+  never invented reviews/testimonials. allaboutlinen.com.au must be allowed in the environment's network settings to
+  read pages directly; otherwise use quoted text from search results limited to that domain.
 - Videos must have an `id`, and beat wrappers must stay untimed (GSAP toggles their visibility), or the renderer
   shows frozen or wrong frames. Run `npx hyperframes lint` in `projects/<name>/` after engine changes.
 - v3 edit style (copied from the reference reel at https://ph.pinterest.com/pin/1101904233826258857/):

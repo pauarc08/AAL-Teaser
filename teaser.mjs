@@ -290,6 +290,31 @@ for (const b of cfg.beats) {
       break;
     }
 
+    case "feature": { // product fact: small tracked label, italic serif headline, detail lines; optional drawn leaf art
+      const ink = col(b.ink ?? "light");
+      let art = "";
+      if (b.art === "leaves") { // banana-leaf line drawing (graphic motif, not a product image)
+        const leaves = (b.leaves ?? [[0.18, 0.86, -28, 1.0], [0.84, 0.16, 152, 0.9], [0.9, 0.9, -150, 0.7]]).map(([x, y, rot, sc], k) => {
+          const L = 900 * sc, Wd = 260 * sc, veins = [];
+          for (let v = 1; v < 14; v++) { const t = v / 14, hw = Wd * Math.sin(Math.PI * t) * 0.92, vx = L * t;
+            veins.push(`M${f(vx)} 0 Q${f(vx + 50 * sc)} ${f(-hw * 0.5)} ${f(vx + 90 * sc)} ${f(-hw)}`, `M${f(vx)} 0 Q${f(vx + 50 * sc)} ${f(hw * 0.5)} ${f(vx + 90 * sc)} ${f(hw)}`); }
+          const d = `M0 0 Q${f(L * 0.35)} ${f(-Wd * 1.3)} ${f(L)} 0 Q${f(L * 0.35)} ${f(Wd * 1.3)} 0 0 Z M-120 0 L${f(L)} 0 ${veins.join(" ")}`;
+          return `<g transform="translate(${f(x * W)} ${f(y * H)}) rotate(${rot})"><path id="lf${i}_${k}" d="${d}" pathLength="1" fill="none" stroke="${col(b.artInk ?? "light")}" stroke-width="2.2" stroke-opacity="${b.artOpacity ?? 0.35}" stroke-dasharray="1" stroke-dashoffset="1"/></g>`;
+        }).join("");
+        art = `<svg class="bgv" viewBox="0 0 ${W} ${H}" style="z-index:1">${leaves}</svg>`;
+        (b.leaves ?? [0, 1, 2]).forEach((_, k) => js.push(`tl.fromTo("#lf${i}_${k}", { attr: { "stroke-dashoffset": 1 } }, { attr: { "stroke-dashoffset": 0 }, duration: ${f(Math.min(dur * 0.8, 2.2))}, ease: "power2.inOut" }, ${f(start + k * 0.15)});`));
+      }
+      const sw = b.swatch ? `<div id="fs${i}" class="swatch" style="background:${b.swatch}"></div>` : "";
+      const lines = (b.lines ?? []).map((l, k) => `<div id="fd${i}_${k}" class="fdet" style="color:${ink}">${esc(l)}</div>`).join("");
+      html.push(box(`${art}<div class="fstack">${b.label ? `<div id="fl${i}" class="flabel" style="color:${ink}">${esc(b.label)}</div>` : ""}${sw}<div id="ft${i}" class="ftitle" style="color:${ink}">${esc(b.title ?? "")}</div>${lines}</div>`));
+      if (b.label) js.push(`tl.fromTo("#fl${i}", { opacity: 0, scaleX: 1.12 }, { opacity: 0.85, scaleX: 1, duration: 0.7, ease: "power2.out" }, ${f(start + 0.1)});`);
+      if (sw) js.push(`tl.fromTo("#fs${i}", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power3.out" }, ${f(start + 0.2)});`);
+      js.push(`tl.fromTo("#ft${i}", { opacity: 0, y: 30, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8, ease: "power3.out" }, ${f(start + 0.3)});`);
+      (b.lines ?? []).forEach((_, k) => js.push(`tl.fromTo("#fd${i}_${k}", { opacity: 0, y: 14 }, { opacity: 0.92, y: 0, duration: 0.6, ease: "power2.out" }, ${f(start + 0.9 + k * 0.35)});`));
+      js.push(`tl.to("#b${i} .fstack", { opacity: 0, y: -16, duration: 0.3, ease: "power1.in" }, ${f(start + dur - 0.3)});`);
+      break;
+    }
+
     case "card": { // end card: logo + small tracked lines over a darkened, slowly pushing background
       const bgm = b.image ? `<div id="cb${i}" class="bgv"><img class="bgv" src="${asset(b.image)}" style="object-position:${b.objectPos ?? "50% 50%"}"></div><div class="tint" style="background:#000;opacity:${b.darken ?? 0.55}"></div>` : "";
       const logo = cfg.logo ? `<img id="cl${i}" src="${asset(cfg.logo)}" style="width:${b.logoWidth ?? "58%"};height:auto">` : `<div id="cl${i}" class="thin" style="color:#fff;font-size:${Math.round(fs * 0.6)}px">${esc(cfg.brand)}</div>`;
@@ -396,6 +421,11 @@ writeFileSync(
       .swrap { bottom: auto; z-index: 60; display: flex; flex-direction: column; align-items: center; gap: 0.15em; }
       .paper { display: inline-block; background: #f6f3ec; color: #111; font-family: "Marker", cursive; line-height: 1; padding: 0.16em 0.3em 0.1em; letter-spacing: 0.02em; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
       .msub { font-family: "Marker", cursive; color: #fff; margin-top: 0.6em; text-shadow: 0 2px 10px rgba(0,0,0,.4); }
+      .fstack { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; text-align: center; gap: ${Math.round(W * 0.025)}px; padding: 0 8%; }
+      .flabel { ${font.thin}; letter-spacing: 0.35em; font-size: ${Math.round(W * 0.033)}px; text-transform: uppercase; }
+      .ftitle { font-family: "PFItalic", serif; font-style: italic; font-weight: 600; font-size: ${Math.round(W * 0.095)}px; line-height: 1.08; }
+      .fdet { ${font.thin}; font-size: ${Math.round(W * 0.042)}px; letter-spacing: 0.12em; line-height: 1.4; }
+      .swatch { width: ${Math.round(W * 0.22)}px; height: ${Math.round(W * 0.012)}px; transform-origin: 50% 50%; }
       .ovl { position: absolute; inset: 0; z-index: 50; pointer-events: none; }
       .word, .stack { position: relative; z-index: 2; text-align: center; font-size: ${fs}px; line-height: 1; }
       .stack { display: flex; flex-direction: column; align-items: center; }
