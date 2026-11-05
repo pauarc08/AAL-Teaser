@@ -255,7 +255,7 @@ for (const b of cfg.beats) {
     case "clip": { // full-frame footage cut: slow push/pan, optional rack-focus in, optional dip to black out
       const media = b.image
         ? `<img class="bgv" src="${asset(b.image)}" style="object-position:${b.objectPos ?? "50% 50%"}">`
-        : `<video id="v${i}" class="clip bgv" src="${b.speed ? fastClip(b, dur) : asset(b.clip)}" data-start="${f(start)}" data-duration="${f(dur)}" data-media-start="${b.speed ? 0 : b.clipStart ?? 0}" muted></video>`;
+        : `<video id="v${i}" class="clip bgv" src="${b.speed ? fastClip(b, dur) : asset(b.clip)}" data-start="${f(start)}" data-duration="${f(dur)}" data-media-start="${b.speed ? 0 : b.clipStart ?? 0}" ${b.audio && !b.speed ? `data-has-audio="true" data-volume="${b.volume ?? 1}" data-fade-in="0.04" data-fade-out="0.04"` : "muted"}></video>`;
       html.push(box(`<div id="m${i}" class="bgv" style="transform-origin:${b.origin ?? "50% 50%"}">${media}</div><div id="dp${i}" class="tint" style="background:#000;opacity:0;z-index:3"></div>`, "background:#000"));
       const [z0, z1] = b.zoom ?? [1.0, 1.06];
       const [p0, p1] = b.pan ?? [0, 0];

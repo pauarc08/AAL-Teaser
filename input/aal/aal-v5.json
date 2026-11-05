@@ -33,7 +33,7 @@
   },
   {
    "type": "strips",
-   "at": 20.75,
+   "at": 31.93,
    "dur": 1.75,
    "top": "36%",
    "lines": [
@@ -49,7 +49,31 @@
    "clip": "../../media/videos/drive.mp4",
    "clipStart": 0.0,
    "speed": 4,
-   "dur": 4.0,
+   "dur": 0.8,
+   "zoom": [
+    1.12,
+    1.16
+   ],
+   "origin": "50% 0%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/drive.mp4",
+   "clipStart": 3.2,
+   "audio": true,
+   "dur": 7.0,
+   "zoom": [
+    1.12,
+    1.2
+   ],
+   "origin": "50% 0%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/drive.mp4",
+   "clipStart": 10.2,
+   "speed": 4,
+   "dur": 1.45,
    "zoom": [
     1.12,
     1.16
@@ -72,8 +96,20 @@
    "type": "clip",
    "clip": "../../media/videos/drive.mp4",
    "clipStart": 24.0,
+   "audio": true,
+   "dur": 1.2,
+   "zoom": [
+    1.12,
+    1.16
+   ],
+   "origin": "50% 0%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/drive.mp4",
+   "clipStart": 25.2,
    "speed": 4,
-   "dur": 3.15,
+   "dur": 2.85,
    "zoom": [
     1.12,
     1.16
@@ -85,9 +121,21 @@
    "clip": "../../media/videos/drive.mp4",
    "clipStart": 36.8,
    "speed": 2.4,
-   "dur": 3.0,
+   "dur": 1.83,
    "zoom": [
     1.1,
+    1.2
+   ],
+   "origin": "50% 40%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/drive.mp4",
+   "clipStart": 41.2,
+   "audio": true,
+   "dur": 1.8,
+   "zoom": [
+    1.2,
     1.25
    ],
    "origin": "50% 40%"
@@ -109,7 +157,7 @@
    "clip": "../../media/videos/gorilla.mp4",
    "clipStart": 15.0,
    "speed": 2,
-   "dur": 2.7,
+   "dur": 1.0,
    "zoom": [
     1.0,
     1.04
@@ -119,12 +167,12 @@
   {
    "type": "clip",
    "clip": "../../media/videos/gorilla.mp4",
-   "clipStart": 20.4,
-   "speed": 1,
-   "dur": 2.2,
+   "clipStart": 17.0,
+   "audio": true,
+   "dur": 5.6,
    "zoom": [
     1.0,
-    1.06
+    1.04
    ],
    "origin": "50% 50%"
   },
@@ -133,10 +181,22 @@
    "clip": "../../media/videos/gorilla.mp4",
    "clipStart": 22.6,
    "speed": 2,
-   "dur": 1.95,
+   "dur": 0.85,
+   "zoom": [
+    1.0,
+    1.04
+   ],
+   "origin": "50% 50%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/gorilla.mp4",
+   "clipStart": 24.3,
+   "audio": true,
+   "dur": 3.8,
    "zoom": [
     1.04,
-    1.12
+    1.1
    ],
    "origin": "50% 40%"
   },
