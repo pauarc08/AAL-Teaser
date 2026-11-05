@@ -151,8 +151,13 @@
    "logoWidth": "58%",
    "lines": [
     {
-     "t": "GRAND OPENING \u00b7 06.11.2026",
-     "size": 0.05,
+     "t": "GRAND OPENING",
+     "size": 0.045
+    },
+    {
+     "t": "06.11.2026",
+     "w": "bold",
+     "size": 0.06,
      "ink": "accent"
     }
    ],
