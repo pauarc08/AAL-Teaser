@@ -33,6 +33,12 @@
   ONLY from allaboutlinen.com.au product pages (sources recorded in the config's `_sources`); no prices unless verified,
   never invented reviews/testimonials. allaboutlinen.com.au must be allowed in the environment's network settings to
   read pages directly; otherwise use quoted text from search results limited to that domain.
+- Freeze-frame intro: `input/aal/intro-gorilla.json` → `output/intro-gorilla.mp4` (6.1s, style of the CapCut
+  "INTRODUCTION VIDEO" template https://www.capcut.com/tv2/ZSprLkQ76/). `freeze` beat = grey halftone frame + colour
+  sticker cutout (white outline) + comic text stickers (`texts`, Luckiest Guy) + white `doodles` + background flash.
+  Make the sticker with `python3 tools/sticker.py frame.png sticker.png --model u2net_human_seg.onnx` (model from
+  rembg's GitHub release v0.0.0, 176 MB, not committed; needs `pip install onnxruntime`). Freeze frame and sticker
+  live in `input/aal/derived/`. Sound pauses during the freeze so it stays in sync when the picture resumes.
 - Videos must have an `id`, and beat wrappers must stay untimed (GSAP toggles their visibility), or the renderer
   shows frozen or wrong frames. Run `npx hyperframes lint` in `projects/<name>/` after engine changes.
 - v3 edit style (copied from the reference reel at https://ph.pinterest.com/pin/1101904233826258857/):

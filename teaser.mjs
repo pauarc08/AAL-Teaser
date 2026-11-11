@@ -33,6 +33,7 @@ copyFileSync(here("./node_modules/@fontsource-variable/archivo/files/archivo-lat
 copyFileSync(here("./node_modules/@fontsource/playfair-display/files/playfair-display-latin-900-normal.woff2"), join(work, "assets", "pf-900.woff2"));
 copyFileSync(here("./node_modules/@fontsource/playfair-display/files/playfair-display-latin-600-italic.woff2"), join(work, "assets", "pf-600i.woff2"));
 copyFileSync(here("./node_modules/@fontsource/permanent-marker/files/permanent-marker-latin-400-normal.woff2"), join(work, "assets", "marker.woff2"));
+copyFileSync(here("./node_modules/@fontsource/luckiest-guy/files/luckiest-guy-latin-400-normal.woff2"), join(work, "assets", "comic.woff2"));
 // "condensed" = Bebas/Oswald (reference look); "wide" = expanded grotesk (Archivo)
 const FONTS = {
   condensed: { bold: `font-family:"Bebas",sans-serif;letter-spacing:0.02em`, thin: `font-family:"OswaldThin",sans-serif;font-weight:200;letter-spacing:0.3em;margin-right:-0.3em` },
@@ -315,6 +316,26 @@ for (const b of cfg.beats) {
       break;
     }
 
+    case "freeze": { // CapCut freeze-frame intro: grey halftone background, colour sticker cutout, comic text stickers, doodles
+      const bgImg = `<img class="bgv" src="${asset(b.image)}" style="filter:grayscale(1) contrast(1.35) brightness(1.05)">`;
+      const doodles = (b.doodles ?? []).map((d, k) =>
+        `<svg class="doodle" style="left:${d.x};top:${d.y};transform:rotate(${d.rot ?? 0}deg) scale(${d.scale ?? 1})" viewBox="0 0 120 80"><path id="dd${i}_${k}" d="M8 60 C 30 10, 80 4, 100 34 M100 34 L 84 30 M100 34 L 98 18" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>`).join("");
+      const texts = (b.texts ?? []).map((t, k) => `<div id="ct${i}_${k}" class="comic" style="left:${t.x};top:${t.y};font-size:${Math.round(W * (t.size ?? 0.075))}px;transform:rotate(${t.rot ?? 0}deg)">${t.lines.map((l) => `<div>${[...l].map((ch) => `<span class="ch">${ch === " " ? "&nbsp;" : esc(ch)}</span>`).join("")}</div>`).join("")}</div>`).join("");
+      html.push(box(`<div id="fz${i}" class="bgv" style="transform-origin:${b.origin ?? "50% 45%"}">${bgImg}<div class="halftone"></div><div id="fw${i}" class="bgv" style="background:#fff;opacity:0"></div><img class="bgv" src="${asset(b.sticker)}"></div>${doodles}${texts}`, "background:#000"));
+      js.push(`tl.fromTo("#fz${i}", { scale: 1.0 }, { scale: ${b.punch ?? 1.08}, duration: 0.18, ease: "expo.out" }, ${f(start)});`);
+      js.push(`tl.to("#fz${i}", { scale: ${f((b.punch ?? 1.08) + 0.03)}, duration: ${f(dur - 0.18)}, ease: "none" }, ${f(start + 0.18)});`);
+      (b.doodles ?? []).forEach((_, k) => js.push(`tl.to("#dd${i}_${k}", { attr: { "stroke-dashoffset": 0 }, duration: 0.3, ease: "power2.out" }, ${f(start + 0.08 + k * 0.08)});`));
+      (b.texts ?? []).forEach((t, k) => {
+        js.push(`tl.fromTo("#ct${i}_${k} .ch", { opacity: 0 }, { opacity: 1, duration: 0.01, stagger: 0.03 }, ${f(start + (t.at ?? 0.05))});`);
+        if (b.flashAt != null) js.push(`tl.fromTo("#ct${i}_${k}", { scale: 1 }, { scale: 1.12, duration: 0.25, ease: "back.out(3)" }, ${f(start + b.flashAt)});`);
+      });
+      if (b.flashAt != null) { // light wash over the background only, stickers stay on top
+        js.push(`tl.fromTo("#fw${i}", { opacity: 0 }, { opacity: 0.6, duration: 0.06 }, ${f(start + b.flashAt)});`);
+        js.push(`tl.to("#fw${i}", { opacity: 0, duration: 0.4, ease: "power2.out" }, ${f(start + b.flashAt + 0.06)});`);
+      }
+      break;
+    }
+
     case "card": { // end card: logo + small tracked lines over a darkened, slowly pushing background
       const bgm = b.image ? `<div id="cb${i}" class="bgv"><img class="bgv" src="${asset(b.image)}" style="object-position:${b.objectPos ?? "50% 50%"}"></div><div class="tint" style="background:#000;opacity:${b.darken ?? 0.55}"></div>` : "";
       const logo = cfg.logo ? `<img id="cl${i}" src="${asset(cfg.logo)}" style="width:${b.logoWidth ?? "58%"};height:auto">` : `<div id="cl${i}" class="thin" style="color:#fff;font-size:${Math.round(fs * 0.6)}px">${esc(cfg.brand)}</div>`;
@@ -393,7 +414,7 @@ let music = "";
 if (cfg.music) {
   const lead = cfg.beats[0]?.type === "blank" ? cfg.beats[0].dur : 0;
   const endStart = total - (["end", "poster", "card"].includes(cfg.beats.at(-1)?.type) && !cfg.musicThroughEnd ? cfg.beats.at(-1).dur : 0);
-  music = `<audio class="clip" src="${asset(cfg.music)}" data-start="${f(lead)}" data-duration="${f(endStart - lead)}" data-media-start="${cfg.musicStart ?? 0}" data-volume="${cfg.musicVolume ?? 1}" data-fade-out="0.15"></audio>`;
+  music = `<audio id="music" class="clip" src="${asset(cfg.music)}" data-start="${f(lead)}" data-duration="${f(endStart - lead)}" data-media-start="${cfg.musicStart ?? 0}" data-volume="${cfg.musicVolume ?? 1}" data-fade-out="0.15"></audio>`;
 }
 
 writeFileSync(
@@ -409,6 +430,7 @@ writeFileSync(
       @font-face { font-family: "OswaldThin"; src: url(assets/oswald-200.woff2) format("woff2"); }
       @font-face { font-family: "PFBlack"; src: url(assets/pf-900.woff2) format("woff2"); font-weight: 900; }
       @font-face { font-family: "PFItalic"; src: url(assets/pf-600i.woff2) format("woff2"); font-weight: 600; font-style: italic; }
+      @font-face { font-family: "Comic"; src: url(assets/comic.woff2) format("woff2"); }
       @font-face { font-family: "Marker"; src: url(assets/marker.woff2) format("woff2"); }
       @font-face { font-family: "Archivo"; src: url(assets/archivo.woff2) format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -426,6 +448,12 @@ writeFileSync(
       .ftitle { font-family: "PFItalic", serif; font-style: italic; font-weight: 600; font-size: ${Math.round(W * 0.095)}px; line-height: 1.08; }
       .fdet { ${font.thin}; font-size: ${Math.round(W * 0.042)}px; letter-spacing: 0.12em; line-height: 1.4; }
       .swatch { width: ${Math.round(W * 0.22)}px; height: ${Math.round(W * 0.012)}px; transform-origin: 50% 50%; }
+      .halftone { position: absolute; inset: 0; background: radial-gradient(circle, rgba(0,0,0,.55) 32%, transparent 36%) 0 0 / 7px 7px; mix-blend-mode: multiply; opacity: .5; }
+      .comic { position: absolute; z-index: 4; font-family: "Comic", sans-serif; line-height: 1.02; text-align: center; transform-origin: 50% 50%;
+        background: radial-gradient(circle, #d9680a 34%, transparent 38%) 0 0 / 5px 5px, linear-gradient(#ffc04d, #f59a1f);
+        -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-stroke: 2px #3b1a04;
+        filter: drop-shadow(0 3px 0 #3b1a04) drop-shadow(0 0 6px rgba(255,255,255,.55)); }
+      .doodle { position: absolute; z-index: 4; width: ${Math.round(W * 0.14)}px; height: auto; fill: none; stroke: #fff; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
       .ovl { position: absolute; inset: 0; z-index: 50; pointer-events: none; }
       .word, .stack { position: relative; z-index: 2; text-align: center; font-size: ${fs}px; line-height: 1; }
       .stack { display: flex; flex-direction: column; align-items: center; }

@@ -1,0 +1,90 @@
+{
+  "brand": "All About Linen",
+  "size": "portrait",
+  "fps": 30,
+  "font": "wide",
+  "_style": "CapCut 'INTRODUCTION VIDEO' template (https://www.capcut.com/tv2/ZSprLkQ76/): play, freeze on the beat as a colour sticker over a grey halftone background with comic text stickers, hold, unfreeze",
+  "_derived": "derived/gorilla_freeze.png = gorilla.mp4 @20.0s; gorilla_sticker.png = tools/sticker.py on that frame",
+  "music": null,
+  "colors": {
+    "primary": "#1e2023",
+    "light": "#f4efe6",
+    "dark": "#000000"
+  },
+  "grade": {
+    "filter": "saturate(1.05) contrast(1.04)",
+    "vignette": 0.2
+  },
+  "beats": [
+    {
+      "type": "clip",
+      "clip": "../../media/videos/gorilla.mp4",
+      "clipStart": 18.2,
+      "zoom": [
+        1.0,
+        1.0
+      ],
+      "dur": 1.8,
+      "audio": true
+    },
+    {
+      "type": "freeze",
+      "image": "derived/gorilla_freeze.png",
+      "sticker": "derived/gorilla_sticker.png",
+      "punch": 1.07,
+      "origin": "50% 35%",
+      "flashAt": 0.7,
+      "texts": [
+        {
+          "lines": [
+            "Hi, we're",
+            "ALL ABOUT",
+            "LINEN"
+          ],
+          "x": "3%",
+          "y": "9%",
+          "rot": -5,
+          "size": 0.088,
+          "at": 0.05
+        },
+        {
+          "lines": [
+            "NOW",
+            "OPEN!"
+          ],
+          "x": "64%",
+          "y": "68%",
+          "rot": 5,
+          "size": 0.1,
+          "at": 0.35
+        }
+      ],
+      "doodles": [
+        {
+          "x": "33%",
+          "y": "4%",
+          "rot": 10,
+          "scale": 0.9
+        },
+        {
+          "x": "50%",
+          "y": "64%",
+          "rot": 200,
+          "scale": 0.9
+        }
+      ],
+      "dur": 2.7
+    },
+    {
+      "type": "clip",
+      "clip": "../../media/videos/gorilla.mp4",
+      "clipStart": 20.0,
+      "zoom": [
+        1.0,
+        1.0
+      ],
+      "dur": 1.6,
+      "audio": true
+    }
+  ]
+}
