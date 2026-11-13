@@ -39,6 +39,10 @@
   Make the sticker with `python3 tools/sticker.py frame.png sticker.png --model u2net_human_seg.onnx` (model from
   rembg's GitHub release v0.0.0, 176 MB, not committed; needs `pip install onnxruntime`). Freeze frame and sticker
   live in `input/aal/derived/`. Sound pauses during the freeze so it stays in sync when the picture resumes.
+- Sign-install reel: `input/aal/sign-install.json` → `output/sign-install.mp4` (13.3s, style of
+  https://ph.pinterest.com/pin/817966351123346948/): 0.13–0.17s jump cuts between camera angles of the sign going up
+  (`sign_front.mp4`, `sign_lift.mp4`), long holds between bursts, then a `blurtitle` beat (RGB-split glitch into the
+  still-playing footage blurred, thin "NOW OPEN..." caption, logo fades up). Teal/warm cinematic grade.
 - Videos must have an `id`, and beat wrappers must stay untimed (GSAP toggles their visibility), or the renderer
   shows frozen or wrong frames. Run `npx hyperframes lint` in `projects/<name>/` after engine changes.
 - v3 edit style (copied from the reference reel at https://ph.pinterest.com/pin/1101904233826258857/):

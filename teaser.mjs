@@ -336,6 +336,29 @@ for (const b of cfg.beats) {
       break;
     }
 
+    case "blurtitle": { // RGB-split glitch into a blurred, still-playing background, then thin caption + logo fade up
+      const media = b.image
+        ? `<img class="bgv" src="${asset(b.image)}" style="object-position:${b.objectPos ?? "50% 50%"}">`
+        : `<video id="v${i}" class="clip bgv" src="${asset(b.clip)}" data-start="${f(start)}" data-duration="${f(dur)}" data-media-start="${b.clipStart ?? 0}" muted></video>`;
+      const svg = `<svg width="0" height="0" style="position:absolute"><filter id="rgb${i}" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+        <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/><feOffset id="ro${i}" in="r" dx="0" result="r2"/>
+        <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0" result="gb"/><feOffset id="go${i}" in="gb" dx="0" result="gb2"/>
+        <feBlend in="r2" in2="gb2" mode="screen" result="m"/><feGaussianBlur id="gbl${i}" in="m" stdDeviation="0"/></filter></svg>`;
+      const logo = cfg.logo ? `<img id="tl${i}" src="${asset(cfg.logo)}" style="width:${b.logoWidth ?? "46%"};height:auto;margin-top:${Math.round(W * 0.02)}px">` : "";
+      html.push(box(`${svg}<div class="bgv" style="filter:url(#rgb${i});transform:scale(1.04)">${media}</div><div class="tint" style="background:#000;opacity:${b.darken ?? 0.18}"></div>
+        <div class="stack" style="z-index:3"><div id="tc${i}" class="thin" style="color:#fff;font-size:${Math.round(W * (b.size ?? 0.05))}px;text-shadow:0 2px 14px rgba(0,0,0,.35)">${esc(b.text ?? "")}</div>${logo}</div>`));
+      const g = b.glitch ?? 0.45;
+      for (let k = 0; k * frame < g; k++) { // jittering channel split while the blur builds
+        const amt = (1 - (k * frame) / g) * 22 * (0.4 + rand() * 0.6);
+        js.push(`tl.set("#ro${i}", { attr: { dx: ${f(-amt)} } }, ${f(start + k * frame)});`, `tl.set("#go${i}", { attr: { dx: ${f(amt * 0.8)} } }, ${f(start + k * frame)});`);
+      }
+      js.push(`tl.set(["#ro${i}", "#go${i}"], { attr: { dx: 0 } }, ${f(start + g)});`);
+      js.push(`tl.fromTo("#gbl${i}", { attr: { stdDeviation: 0 } }, { attr: { stdDeviation: ${b.blur ?? 12} }, duration: ${f(g)}, ease: "power2.out" }, ${f(start)});`);
+      js.push(`tl.fromTo("#tc${i}", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "power1.out" }, ${f(start + 0.1)});`);
+      if (logo) js.push(`tl.fromTo("#tl${i}", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.7, ease: "power2.out" }, ${f(start + (b.logoAt ?? 0.6))});`);
+      break;
+    }
+
     case "card": { // end card: logo + small tracked lines over a darkened, slowly pushing background
       const bgm = b.image ? `<div id="cb${i}" class="bgv"><img class="bgv" src="${asset(b.image)}" style="object-position:${b.objectPos ?? "50% 50%"}"></div><div class="tint" style="background:#000;opacity:${b.darken ?? 0.55}"></div>` : "";
       const logo = cfg.logo ? `<img id="cl${i}" src="${asset(cfg.logo)}" style="width:${b.logoWidth ?? "58%"};height:auto">` : `<div id="cl${i}" class="thin" style="color:#fff;font-size:${Math.round(fs * 0.6)}px">${esc(cfg.brand)}</div>`;
