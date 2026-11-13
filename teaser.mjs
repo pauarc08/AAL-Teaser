@@ -34,6 +34,7 @@ copyFileSync(here("./node_modules/@fontsource/playfair-display/files/playfair-di
 copyFileSync(here("./node_modules/@fontsource/playfair-display/files/playfair-display-latin-600-italic.woff2"), join(work, "assets", "pf-600i.woff2"));
 copyFileSync(here("./node_modules/@fontsource/permanent-marker/files/permanent-marker-latin-400-normal.woff2"), join(work, "assets", "marker.woff2"));
 copyFileSync(here("./node_modules/@fontsource/luckiest-guy/files/luckiest-guy-latin-400-normal.woff2"), join(work, "assets", "comic.woff2"));
+copyFileSync(here("./node_modules/@fontsource/playfair-display/files/playfair-display-latin-500-normal.woff2"), join(work, "assets", "pf-500.woff2"));
 // "condensed" = Bebas/Oswald (reference look); "wide" = expanded grotesk (Archivo)
 const FONTS = {
   condensed: { bold: `font-family:"Bebas",sans-serif;letter-spacing:0.02em`, thin: `font-family:"OswaldThin",sans-serif;font-weight:200;letter-spacing:0.3em;margin-right:-0.3em` },
@@ -359,6 +360,40 @@ for (const b of cfg.beats) {
       break;
     }
 
+    case "serif": { // elegant serif word card on black (or a dimmed photo / glow); lines can stagger in or rise from blur
+      const bgm = b.image ? `<img class="bgv" src="${asset(b.image)}" style="filter:brightness(${b.dim ?? 0.3}) saturate(0.8);object-position:${b.objectPos ?? "50% 50%"}">` : "";
+      const glow = b.glow ? `<div class="bgv" style="background:radial-gradient(ellipse 60% 40% at 50% 50%, rgba(255,240,215,.10), rgba(0,0,0,0) 70%)"></div>` : "";
+      const lines = b.lines.map((l, k) => `<div id="sl${i}_${k}" class="srf" style="font-size:${Math.round(W * (l.size ?? 0.08))}px;letter-spacing:${l.track ?? 0}em;margin-right:-${l.track ?? 0}em;line-height:${l.lh ?? 1.05}">${esc(l.t)}</div>`).join("");
+      html.push(box(`${bgm}${glow}<div id="sw${i}s" class="stack" style="z-index:3">${lines}</div>`, "background:#000"));
+      if (b.image) js.push(`tl.fromTo("#b${i} > img", { scale: 1.06 }, { scale: 1.0, duration: ${f(dur)}, ease: "none" }, ${f(start)});`);
+      b.lines.forEach((l, k) => {
+        const at = start + (l.at ?? (b.enter === "stagger" ? 0.2 + k * 0.45 : 0));
+        if (b.enter === "blur") js.push(`tl.fromTo("#sl${i}_${k}", { opacity: 0, filter: "blur(12px)", scale: 1.04 }, { opacity: 1, filter: "blur(0px)", scale: 1, duration: 0.6, ease: "power2.out" }, ${f(at)});`);
+        else js.push(`tl.fromTo("#sl${i}_${k}", { opacity: 0 }, { opacity: 1, duration: ${b.enter === "stagger" ? 0.3 : 0.12}, ease: "power1.out" }, ${f(at)});`);
+      });
+      if (b.exit === "blur") js.push(`tl.to("#sw${i}s", { opacity: 0, filter: "blur(12px)", duration: 0.3, ease: "power1.in" }, ${f(start + dur - 0.3)});`);
+      break;
+    }
+
+    case "glowlogo": { // logo "light-painted" on: a black cover with a glowing edge sweeps off it, then tagline, then blur out
+      const lw = Math.round(W * (b.logoWidth ?? 0.42));
+      html.push(box(`<div id="gw${i}" class="stack" style="z-index:3">
+        <div style="position:relative;width:${lw}px;overflow:hidden;padding:12%">
+          <img src="${asset(cfg.logo)}" style="width:100%;height:auto;display:block;filter:drop-shadow(0 0 6px rgba(255,245,225,.95)) drop-shadow(0 0 22px rgba(255,235,200,.55))">
+          <div id="gc${i}" style="position:absolute;top:-10%;bottom:-10%;left:-10%;width:260%;background:linear-gradient(90deg, rgba(0,0,0,0) 0%, #000 12%, #000 100%)"></div>
+          <div id="gs${i}" style="position:absolute;top:0;bottom:0;left:-10%;width:30%;background:radial-gradient(ellipse 40% 50% at 50% 50%, rgba(255,245,225,.9), rgba(255,235,200,0) 70%);mix-blend-mode:screen"></div>
+        </div>
+        ${b.tagline ? `<div id="gt${i}" class="srf" style="font-family:'PFItalic',serif;font-style:italic;font-size:${Math.round(W * 0.038)}px;opacity:.85;margin-top:${Math.round(W * 0.01)}px">${esc(b.tagline)}</div>` : ""}
+      </div>`, "background:#000"));
+      const sweep = b.sweep ?? 1.1;
+      js.push(`tl.fromTo("#gc${i}", { x: 0 }, { x: ${f(lw * 1.25)}, duration: ${f(sweep)}, ease: "power1.inOut" }, ${f(start + 0.1)});`);
+      js.push(`tl.fromTo("#gs${i}", { x: 0, opacity: 1 }, { x: ${f(lw * 1.25)}, duration: ${f(sweep)}, ease: "power1.inOut" }, ${f(start + 0.1)});`);
+      js.push(`tl.to("#gs${i}", { opacity: 0, duration: 0.2 }, ${f(start + 0.1 + sweep)});`);
+      if (b.tagline) js.push(`tl.fromTo("#gt${i}", { opacity: 0 }, { opacity: 0.85, duration: 0.4 }, ${f(start + sweep)});`);
+      js.push(`tl.to("#gw${i}", { opacity: 0, filter: "blur(14px)", duration: 0.35, ease: "power1.in" }, ${f(start + dur - 0.35)});`);
+      break;
+    }
+
     case "card": { // end card: logo + small tracked lines over a darkened, slowly pushing background
       const bgm = b.image ? `<div id="cb${i}" class="bgv"><img class="bgv" src="${asset(b.image)}" style="object-position:${b.objectPos ?? "50% 50%"}"></div><div class="tint" style="background:#000;opacity:${b.darken ?? 0.55}"></div>` : "";
       const logo = cfg.logo ? `<img id="cl${i}" src="${asset(cfg.logo)}" style="width:${b.logoWidth ?? "58%"};height:auto">` : `<div id="cl${i}" class="thin" style="color:#fff;font-size:${Math.round(fs * 0.6)}px">${esc(cfg.brand)}</div>`;
@@ -453,6 +488,7 @@ writeFileSync(
       @font-face { font-family: "OswaldThin"; src: url(assets/oswald-200.woff2) format("woff2"); }
       @font-face { font-family: "PFBlack"; src: url(assets/pf-900.woff2) format("woff2"); font-weight: 900; }
       @font-face { font-family: "PFItalic"; src: url(assets/pf-600i.woff2) format("woff2"); font-weight: 600; font-style: italic; }
+      @font-face { font-family: "PFReg"; src: url(assets/pf-500.woff2) format("woff2"); font-weight: 500; }
       @font-face { font-family: "Comic"; src: url(assets/comic.woff2) format("woff2"); }
       @font-face { font-family: "Marker"; src: url(assets/marker.woff2) format("woff2"); }
       @font-face { font-family: "Archivo"; src: url(assets/archivo.woff2) format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; }
@@ -477,6 +513,7 @@ writeFileSync(
         -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-stroke: 2px #3b1a04;
         filter: drop-shadow(0 3px 0 #3b1a04) drop-shadow(0 0 6px rgba(255,255,255,.55)); }
       .doodle { position: absolute; z-index: 4; width: ${Math.round(W * 0.14)}px; height: auto; fill: none; stroke: #fff; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+      .srf { font-family: "PFReg", serif; font-weight: 500; color: #f4efe6; text-align: center; }
       .ovl { position: absolute; inset: 0; z-index: 50; pointer-events: none; }
       .word, .stack { position: relative; z-index: 2; text-align: center; font-size: ${fs}px; line-height: 1; }
       .stack { display: flex; flex-direction: column; align-items: center; }

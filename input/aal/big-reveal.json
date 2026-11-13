@@ -1,0 +1,282 @@
+{
+ "brand": "All About Linen",
+ "logo": "logo_white.png",
+ "size": "portrait",
+ "fps": 30,
+ "font": "wide",
+ "music": null,
+ "_style": "https://ph.pinterest.com/pin/904731012651394798/ : footage alternating with black serif word cards (GET / READY / FOR / A BIG REVEAL), fast montage with dark flickers, location card over dim interior, light-painted logo, blur to OPENING SOON",
+ "colors": {
+  "primary": "#1e2023",
+  "light": "#f4efe6",
+  "dark": "#000000"
+ },
+ "grade": {
+  "filter": "contrast(1.06) saturate(0.95) sepia(0.12) brightness(0.97)",
+  "vignette": 0.4,
+  "grain": 0.05
+ },
+ "beats": [
+  {
+   "type": "clip",
+   "clip": "../../media/videos/sign_front.mp4",
+   "clipStart": 2.0,
+   "zoom": [
+    1.0,
+    1.04
+   ],
+   "dur": 1.25
+  },
+  {
+   "type": "serif",
+   "lines": [
+    {
+     "t": "GET",
+     "size": 0.101
+    }
+   ],
+   "dur": 0.75
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/sign_lift.mp4",
+   "clipStart": 5.0,
+   "zoom": [
+    1.0,
+    1.04
+   ],
+   "dur": 0.75
+  },
+  {
+   "type": "serif",
+   "lines": [
+    {
+     "t": "READY",
+     "size": 0.101
+    }
+   ],
+   "dur": 0.75
+  },
+  {
+   "type": "clip",
+   "image": "../../media/images/showroom.jpg",
+   "zoom": [
+    1.0,
+    1.06
+   ],
+   "dur": 0.75,
+   "origin": "60% 55%"
+  },
+  {
+   "type": "blank",
+   "bg": "dark",
+   "dur": 0.25
+  },
+  {
+   "type": "serif",
+   "lines": [
+    {
+     "t": "FOR",
+     "size": 0.101
+    }
+   ],
+   "dur": 0.6
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/sign_lift.mp4",
+   "clipStart": 41.0,
+   "zoom": [
+    1.0,
+    1.04
+   ],
+   "dur": 0.65
+  },
+  {
+   "type": "serif",
+   "lines": [
+    {
+     "t": "A",
+     "size": 0.095
+    },
+    {
+     "t": "BIG",
+     "size": 0.27,
+     "lh": 0.9
+    },
+    {
+     "t": "REVEAL",
+     "size": 0.081,
+     "track": 0.2
+    }
+   ],
+   "dur": 1.0
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/sign_front.mp4",
+   "clipStart": 16.0,
+   "zoom": [
+    1.0,
+    1.08
+   ],
+   "dur": 1.45,
+   "origin": "45% 30%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/sign_lift.mp4",
+   "clipStart": 24.0,
+   "zoom": [
+    1.0,
+    1.04
+   ],
+   "dur": 0.25
+  },
+  {
+   "type": "clip",
+   "image": "../../media/images/storefront_sign.jpg",
+   "zoom": [
+    1.0,
+    1.06
+   ],
+   "dur": 0.13
+  },
+  {
+   "type": "blank",
+   "bg": "dark",
+   "dur": 0.1
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/sign_front.mp4",
+   "clipStart": 20.0,
+   "zoom": [
+    1.0,
+    1.04
+   ],
+   "dur": 0.2
+  },
+  {
+   "type": "clip",
+   "image": "../../media/images/showroom.jpg",
+   "zoom": [
+    1.0,
+    1.06
+   ],
+   "dur": 0.13,
+   "origin": "75% 60%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/sign_lift.mp4",
+   "clipStart": 38.0,
+   "zoom": [
+    1.0,
+    1.04
+   ],
+   "dur": 0.2
+  },
+  {
+   "type": "blank",
+   "bg": "dark",
+   "dur": 0.1
+  },
+  {
+   "type": "clip",
+   "image": "../../media/images/storefront_sign_wide.jpg",
+   "zoom": [
+    1.0,
+    1.06
+   ],
+   "dur": 0.17
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/sign_front.mp4",
+   "clipStart": 24.0,
+   "zoom": [
+    1.0,
+    1.04
+   ],
+   "dur": 0.2
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/sign_lift.mp4",
+   "clipStart": 41.5,
+   "zoom": [
+    1.0,
+    1.04
+   ],
+   "dur": 0.13
+  },
+  {
+   "type": "clip",
+   "image": "../../media/images/showroom.jpg",
+   "zoom": [
+    1.0,
+    1.06
+   ],
+   "dur": 0.2,
+   "origin": "25% 70%"
+  },
+  {
+   "type": "clip",
+   "clip": "../../media/videos/sign_front.mp4",
+   "clipStart": 26.0,
+   "zoom": [
+    1.0,
+    1.04
+   ],
+   "dur": 0.29
+  },
+  {
+   "type": "serif",
+   "lines": [
+    {
+     "t": "AT",
+     "size": 0.041,
+     "track": 0.1,
+     "at": 0.25
+    },
+    {
+     "t": "Showroom 242",
+     "size": 0.081,
+     "at": 0.75
+    },
+    {
+     "t": "\u260f 7300 6694",
+     "size": 0.081,
+     "at": 1.25
+    }
+   ],
+   "dur": 2.2,
+   "image": "../../media/images/showroom.jpg",
+   "dim": 0.28,
+   "enter": "stagger"
+  },
+  {
+   "type": "glowlogo",
+   "logoWidth": 0.58,
+   "sweep": 1.0,
+   "dur": 1.8
+  },
+  {
+   "type": "serif",
+   "lines": [
+    {
+     "t": "NOW",
+     "size": 0.115
+    },
+    {
+     "t": "OPEN",
+     "size": 0.115
+    }
+   ],
+   "dur": 1.9,
+   "glow": true,
+   "enter": "blur"
+  }
+ ]
+}

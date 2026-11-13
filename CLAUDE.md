@@ -43,6 +43,10 @@
   https://ph.pinterest.com/pin/817966351123346948/): 0.13–0.17s jump cuts between camera angles of the sign going up
   (`sign_front.mp4`, `sign_lift.mp4`), long holds between bursts, then a `blurtitle` beat (RGB-split glitch into the
   still-playing footage blurred, thin "NOW OPEN..." caption, logo fades up). Teal/warm cinematic grade.
+- Big-reveal reel: `input/aal/big-reveal.json` → `output/big-reveal.mp4` (16.2s, style of
+  https://ph.pinterest.com/pin/904731012651394798/): footage alternating with black `serif` word cards (GET / READY /
+  FOR / A BIG REVEAL), a fast montage with dark flicker frames, `serif` location card over the dimmed showroom
+  (`enter: "stagger"`), `glowlogo` (light-painted logo sweep), `serif` "NOW OPEN" with `glow` + `enter: "blur"`.
 - Videos must have an `id`, and beat wrappers must stay untimed (GSAP toggles their visibility), or the renderer
   shows frozen or wrong frames. Run `npx hyperframes lint` in `projects/<name>/` after engine changes.
 - v3 edit style (copied from the reference reel at https://ph.pinterest.com/pin/1101904233826258857/):
